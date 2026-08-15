@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "connections": [
+    {
+      "id": "local-files",
+      "label": "Local files and logs",
+      "class": "free-open-source",
+      "default": true,
+      "auth": "filesystem scope selected by the host",
+      "permissions": ["read selected paths"],
+      "writes": false,
+      "status": "available"
+    },
+    {
+      "id": "git",
+      "label": "Git",
+      "class": "free-open-source",
+      "default": true,
+      "auth": "local repository permissions",
+      "permissions": ["read status and history"],
+      "writes": false,
+      "status": "available"
+    },
+    {
+      "id": "sqlite",
+      "label": "SQLite memory",
+      "class": "free-open-source",
+      "default": true,
+      "auth": "local file permissions",
+      "permissions": ["read and write the Operations Pulse database"],
+      "writes": true,
+      "status": "available"
+    },
+    {
+      "id": "imap-email",
+      "label": "Standards-based email (IMAP)",
+      "class": "bring-your-own-account",
+      "default": false,
+      "auth": "host-managed credential or app password",
+      "permissions": ["read selected mailbox or folder"],
+      "writes": false,
+      "status": "planned"
+    },
+    {
+      "id": "github",
+      "label": "GitHub",
+      "class": "free-or-subscription",
+      "default": false,
+      "auth": "host OAuth connection or bring-your-own token",
+      "permissions": ["repository metadata", "issues and pull requests as granted"],
+      "writes": "optional and separately approved",
+      "status": "planned"
+    },
+    {
+      "id": "linear",
+      "label": "Linear",
+      "class": "subscription-or-existing-license",
+      "default": false,
+      "auth": "host OAuth connection or bring-your-own API key",
+      "permissions": ["issues and projects as granted"],
+      "writes": "optional and separately approved",
+      "status": "planned"
+    },
+    {
+      "id": "sentry",
+      "label": "Sentry",
+      "class": "free-or-subscription",
+      "default": false,
+      "auth": "host connection or bring-your-own token",
+      "permissions": ["read selected projects and events"],
+      "writes": false,
+      "status": "planned"
+    },
+    {
+      "id": "posthog",
+      "label": "PostHog",
+      "class": "open-source-or-cloud-subscription",
+      "default": false,
+      "auth": "self-hosted URL plus key, or cloud connection",
+      "permissions": ["read selected projects and insights"],
+      "writes": false,
+      "status": "planned"
+    },
+    {
+      "id": "model-provider",
+      "label": "Optional model provider",
+      "class": "local-model-or-bring-your-own-api",
+      "default": false,
+      "auth": "local endpoint, existing subscription, or API key",
+      "permissions": ["send only the context approved for a specific run"],
+      "writes": false,
+      "status": "planned"
+    }
+  ]
+}

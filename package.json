@@ -1,0 +1,26 @@
+{
+  "name": "operations-pulse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first operational heartbeats, durable tickets, and governed tool connections.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/validate.mjs",
+    "check": "npm run build && npm test && npm run validate",
+    "pulse": "node packages/core/dist/cli.js",
+    "mcp": "node packages/mcp/dist/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "7.0.2"
+  }
+}

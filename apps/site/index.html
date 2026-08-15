@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Operations Pulse is a local-first loop orchestrator for evidence-backed operational checks and durable ticket memory."
+    />
+    <meta name="theme-color" content="#f7f3e9" />
+    <meta property="og:title" content="Operations Pulse" />
+    <meta
+      property="og:description"
+      content="A steady heartbeat for useful operations. Free and local by default."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./assets/operations-pulse-brand-board.png" />
+    <title>Operations Pulse — Openly Useful</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="product-name" href="#top" aria-label="Operations Pulse home">
+        <span class="status-dot" aria-hidden="true"></span>
+        Operations Pulse
+      </a>
+      <nav aria-label="Primary">
+        <a href="#how">How it works</a>
+        <a href="#tools">Tools</a>
+        <a href="#connections">Connections</a>
+        <a href="#launch">Launch</a>
+      </nav>
+      <a class="quiet-link" href="https://openlyuseful.org">Openly Useful ↗</a>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <div class="eyebrow">Local-first · open source · evidence-backed</div>
+        <h1>A steady heartbeat for useful operations.</h1>
+        <p class="hero-copy">
+          Run recurring checks, remember what happened, and turn verified
+          signals into reviewable tickets—without requiring a paid service.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#launch">Start locally</a>
+          <a class="button secondary" href="#tools">Inspect every tool</a>
+        </div>
+
+        <div class="pulse-track" aria-label="Heartbeat to evidence to ticket to review">
+          <div class="pulse-line" aria-hidden="true"></div>
+          <div class="pulse-stage">
+            <span>01</span>
+            <strong>Heartbeat</strong>
+            <small>Run bounded checks</small>
+          </div>
+          <div class="pulse-stage">
+            <span>02</span>
+            <strong>Evidence</strong>
+            <small>Keep facts and context</small>
+          </div>
+          <div class="pulse-stage">
+            <span>03</span>
+            <strong>Ticket</strong>
+            <small>Capture actionable work</small>
+          </div>
+          <div class="pulse-stage">
+            <span>04</span>
+            <strong>Review</strong>
+            <small>Humans close the loop</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="proof-bar" aria-label="Project principles">
+        <p><strong>SQLite memory</strong><span>Local and portable</span></p>
+        <p><strong>MCP tools</strong><span>Structured and explainable</span></p>
+        <p><strong>No key required</strong><span>Useful on first run</span></p>
+        <p><strong>Writes are visible</strong><span>Approval stays explicit</span></p>
+      </section>
+
+      <section class="section split" id="how">
+        <div>
+          <p class="section-kicker">The operating loop</p>
+          <h2>Small checks compound into useful memory.</h2>
+        </div>
+        <div class="body-copy">
+          <p>
+            A pulse checks local repository state, documentation, and selected
+            logs. Every run keeps compact evidence in SQLite. Before creating
+            work, it looks for related tickets—so the next agent or human starts
+            with history instead of a blank prompt.
+          </p>
+          <p>
+            Deterministic checks come first. Models are optional interpretation
+            layers, not required infrastructure.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="tools">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Self-describing at launch</p>
+            <h2>Know what a tool does before it runs.</h2>
+          </div>
+          <p>
+            Every tool declares its use case, cost class, data boundary, write
+            behavior, approval rule, and a working example.
+          </p>
+        </div>
+        <div class="tool-grid">
+          <article class="tool-card featured">
+            <div class="tool-meta"><span>Explain</span><span>Read only</span></div>
+            <h3>operations_describe</h3>
+            <p>Returns the complete tool and connection catalog for setup, review, or UI rendering.</p>
+            <code>“What can this pulse use, and which options cost money?”</code>
+          </article>
+          <article class="tool-card">
+            <div class="tool-meta"><span>Memory</span><span>Read only</span></div>
+            <h3>tickets_list</h3>
+            <p>Search prior and active work before staffing a new ticket.</p>
+          </article>
+          <article class="tool-card">
+            <div class="tool-meta"><span>Heartbeat</span><span>Local write</span></div>
+            <h3>pulse_run</h3>
+            <p>Runs configured checks and stores evidence. Ticket creation is separately opt-in.</p>
+          </article>
+          <article class="tool-card">
+            <div class="tool-meta"><span>Triage</span><span>Explicit write</span></div>
+            <h3>ticket_create</h3>
+            <p>Adds one proposal to the local queue with source, tags, and priority.</p>
+          </article>
+          <article class="tool-card">
+            <div class="tool-meta"><span>History</span><span>Read only</span></div>
+            <h3>pulse_history</h3>
+            <p>Surfaces recurring noise and changes across recent runs.</p>
+          </article>
+          <article class="tool-card">
+            <div class="tool-meta"><span>Setup</span><span>No secrets</span></div>
+            <h3>connections_list</h3>
+            <p>Explains free, self-hosted, subscription, and bring-your-own paths.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section connections" id="connections">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Free first, connected when useful</p>
+            <h2>Use the tools you have. Keep the choice visible.</h2>
+          </div>
+          <p>
+            The host owns the guided connection prompt and secret store.
+            Operations Pulse supplies the standard capability contract.
+          </p>
+        </div>
+        <div class="connection-table" role="table" aria-label="Connection availability">
+          <div class="connection-row heading" role="row">
+            <span role="columnheader">Capability</span>
+            <span role="columnheader">Path</span>
+            <span role="columnheader">Launch status</span>
+          </div>
+          <div class="connection-row" role="row">
+            <strong role="cell">Git, files, logs, SQLite</strong>
+            <span role="cell">Free · local · open source</span>
+            <span role="cell" class="available">Available</span>
+          </div>
+          <div class="connection-row" role="row">
+            <strong role="cell">Email</strong>
+            <span role="cell">IMAP · bring your account</span>
+            <span role="cell">Planned adapter</span>
+          </div>
+          <div class="connection-row" role="row">
+            <strong role="cell">GitHub and Linear</strong>
+            <span role="cell">Connected account or token</span>
+            <span role="cell">Planned adapter</span>
+          </div>
+          <div class="connection-row" role="row">
+            <strong role="cell">PostHog and Sentry</strong>
+            <span role="cell">Self-hosted or cloud</span>
+            <span role="cell">Planned adapter</span>
+          </div>
+          <div class="connection-row" role="row">
+            <strong role="cell">Model interpretation</strong>
+            <span role="cell">Local model, subscription, or API</span>
+            <span role="cell">Optional by design</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section launch" id="launch">
+        <div>
+          <p class="section-kicker">First local run</p>
+          <h2>Useful before you connect anything.</h2>
+          <p>
+            Node.js 24 or newer is the only runtime requirement. The supported
+            first release is local stdio MCP plus SQLite.
+          </p>
+        </div>
+        <pre><code><span>$</span> npm install
+<span>$</span> npm run build
+<span>$</span> node packages/core/dist/cli.js init
+<span>$</span> node packages/core/dist/cli.js pulse run --root .</code></pre>
+      </section>
+
+      <section class="section brand-board">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Endorsed child identity</p>
+            <h2>Operations Pulse, by Openly Useful.</h2>
+          </div>
+          <p>
+            The pulse-and-ticket motif belongs to this product. The Open Monitor
+            identity remains the unchanged institutional mark.
+          </p>
+        </div>
+        <img
+          src="./assets/operations-pulse-brand-board.png"
+          alt="Operations Pulse brand board showing the warm shell palette, readable typography, pulse and ticket motif, and Openly Useful endorsement"
+        />
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <img
+          src="./assets/openly-useful-lockup.svg"
+          alt="Openly Useful"
+          width="210"
+          height="44"
+        />
+        <p>Useful things, openly made.</p>
+      </div>
+      <p>Operations Pulse · Preparing v0.1 · MIT licensed</p>
+    </footer>
+  </body>
+</html>

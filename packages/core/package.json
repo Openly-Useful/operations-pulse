@@ -1,0 +1,21 @@
+{
+  "name": "@openly-useful/operations-pulse-core",
+  "version": "0.1.0",
+  "description": "Local SQLite memory and deterministic checks for Operations Pulse.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "operations-pulse": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

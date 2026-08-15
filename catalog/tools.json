@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "tools": [
+    {
+      "id": "operations_describe",
+      "summary": "Explain every available Operations Pulse tool and connection path.",
+      "whenToUse": "At setup, launch, or whenever an operator asks what the system can do.",
+      "cost": "free-local",
+      "dataBoundary": "Reads the public catalog only.",
+      "writes": false,
+      "approval": "none",
+      "example": "Show me the available tools and which ones require accounts."
+    },
+    {
+      "id": "tickets_list",
+      "summary": "Query the local operational ticket memory.",
+      "whenToUse": "Before staffing new work or when reviewing the queue.",
+      "cost": "free-local",
+      "dataBoundary": "Reads the configured local SQLite database.",
+      "writes": false,
+      "approval": "none",
+      "example": "List open high-priority tickets related to authentication."
+    },
+    {
+      "id": "ticket_create",
+      "summary": "Add an explicit ticket to the local queue.",
+      "whenToUse": "When a human or a verified pulse result identifies actionable work.",
+      "cost": "free-local",
+      "dataBoundary": "Writes one record to local SQLite.",
+      "writes": true,
+      "approval": "explicit tool invocation",
+      "example": "Create a medium-priority ticket for the stale onboarding docs."
+    },
+    {
+      "id": "pulse_run",
+      "summary": "Run configured operational checks and store their evidence.",
+      "whenToUse": "On demand or from a scheduler for a heartbeat-style review.",
+      "cost": "free-local by default",
+      "dataBoundary": "Reads the chosen workspace and configured local logs; stores pulse evidence locally.",
+      "writes": true,
+      "approval": "ticket creation is separately opt-in",
+      "example": "Run a read-only pulse against this repository."
+    },
+    {
+      "id": "pulse_history",
+      "summary": "Read recent heartbeat outcomes and evidence summaries.",
+      "whenToUse": "When looking for repeated noise, regressions, or changes over time.",
+      "cost": "free-local",
+      "dataBoundary": "Reads local SQLite.",
+      "writes": false,
+      "approval": "none",
+      "example": "Show the last ten pulse runs and failed checks."
+    },
+    {
+      "id": "connections_list",
+      "summary": "Show optional integrations, setup modes, permissions, and cost classes.",
+      "whenToUse": "Before connecting email, ticketing, observability, or model providers.",
+      "cost": "free-local",
+      "dataBoundary": "Reads connection metadata; never returns credentials.",
+      "writes": false,
+      "approval": "none",
+      "example": "Which email integrations support bring-your-own credentials?"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "auditedAt": "2026-08-15",
+  "target": "Openly-Useful/operations-pulse",
+  "policy": "Import only relevant, licensed, sanitized material; reference maintained products and upstream projects instead of duplicating them.",
+  "sources": [
+    {"repository":"MeekPhills/handoff-skills","visibility":"public","assets":["project-repo","project-tracking","roadmap-status-capture","session-pickup","session-wrapup"],"disposition":"vendor-with-attribution","reason":"Reusable operations memory workflows; original MIT copyright is retained."},
+    {"repository":"private-source/governed-work-graph","visibility":"private-source","assets":["dependency work graph","execution gates","verification evidence format"],"disposition":"rewrite-sanitized-template","reason":"Useful governance pattern, but source includes private paths, IDs, provider plans, and project state."},
+    {"repository":"private-source/role-ownership-pattern","visibility":"private-source","assets":["five role agent definitions"],"disposition":"rewrite-pattern-only","reason":"Role ownership and guardrail structure is reusable; product paths, vendors, secrets guidance, and roadmap identifiers are not."},
+    {"repository":"private-source/project-status","visibility":"private-source","assets":["project-status skill","MCP","monitor"],"disposition":"integrate-by-reference","reason":"Already a separately maintained product; Operations Pulse should consume it through a future adapter rather than fork it."},
+    {"repository":"MeekPhills/project-ambient","visibility":"public","assets":["status and health surfaces","MCP"],"disposition":"integrate-by-reference","reason":"A separately maintained product with its own safety and content-rights model."},
+    {"repository":"MeekPhills/-LGAM-codex-plugin-cc","visibility":"public","assets":["Codex commands","Codex rescue agent","runtime skills"],"disposition":"exclude-reference-upstream","reason":"The repository is OpenAI's Codex plugin; link to the upstream package instead of republishing it as Openly Useful work."},
+    {"repository":"MeekPhills/caveman-code-tbd-","visibility":"public","assets":["coding agents","skills","MCP runtime"],"disposition":"exclude-reference-upstream","reason":"Large independent Apache-licensed project; integration is preferable to copying and rebranding."},
+    {"repository":"MeekPhills/slashbooks-copy","visibility":"public","assets":["nine accounting skills"],"disposition":"quarantine-provenance-review","reason":"Repository name and content indicate an external project copy; do not redistribute until upstream identity, license, and modifications are documented."},
+    {"repository":"MeekPhills/blitzos","visibility":"public","assets":["repository bootstrap skill"],"disposition":"exclude-product-specific","reason":"Build workflow belongs to BlitzOS rather than general operations."},
+    {"repository":"MeekPhills/i-have-adhd-Gio-","visibility":"public","assets":["personal productivity skill"],"disposition":"exclude-out-of-scope","reason":"Useful but not an operations-loop capability; preserve as its own project."},
+    {"repository":"private-source/organization-launch","visibility":"private-source","assets":["launch skill","roadmap status copy"],"disposition":"exclude-private-product-and-duplicate","reason":"Launch workflow is organization-specific; roadmap workflow is already represented by handoff-skills."},
+    {"repository":"MeekPhills/claude-code-dashboard","visibility":"public","assets":["repository agent instructions"],"disposition":"exclude-product-specific","reason":"No portable skill or agent pack; application-specific instructions stay with the app."},
+    {"repository":"private-source/memory-vault-a","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"private-source/memory-vault-b","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"MeekPhills/citewire","visibility":"public","assets":[],"disposition":"integrate-by-reference","reason":"Separate Openly Useful candidate/project; no portable skill found in the repository tree."},
+    {"repository":"private-source/cloud-adapter","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"private-source/product-engine-a","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"private-source/product-engine-b","visibility":"private-source","assets":[],"disposition":"exclude-empty","reason":"Repository has no content."},
+    {"repository":"private-source/product-app-a","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"private-source/career-workflow","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"private-source/finance-workflow","visibility":"private-source","assets":[],"disposition":"exclude-no-portable-assets","reason":"No portable skill or role definition found."},
+    {"repository":"private-source/recovered-orchestration-spec","visibility":"private-source","assets":["recovered execution specification"],"disposition":"quarantine-evidence-only","reason":"Source is a private recovered specification, not an implemented portable skill pack."},
+    {"repository":"MeekPhills/homebrew-tap","visibility":"public","assets":[],"disposition":"exclude-distribution-only","reason":"Package distribution metadata is not an agent or skill."},
+    {"repository":"private-source/empty-tutorial","visibility":"private-source","assets":[],"disposition":"exclude-empty","reason":"Repository has no content."}
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operations Pulse"
+  short_description: "Run governed operational heartbeats and ticket memory."
+  default_prompt: "Inspect this project, run a read-only operations pulse, and report evidence-backed tickets and next actions."

@@ -1,0 +1,18 @@
+{
+  "$schema": "./catalog/config.schema.json",
+  "workspace": ".",
+  "checks": {
+    "git_worktree": true,
+    "docs_presence": true,
+    "local_logs": {
+      "enabled": false,
+      "paths": ["./logs/app.log"],
+      "patterns": ["error", "warn", "retry", "timeout"]
+    }
+  },
+  "ticketPolicy": {
+    "createFromPulse": false,
+    "defaultPriority": "medium"
+  },
+  "connections": {}
+}
