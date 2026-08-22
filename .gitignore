@@ -5,6 +5,7 @@ coverage/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+.operations-pulse/
 .env
 .env.*
 !.env.example

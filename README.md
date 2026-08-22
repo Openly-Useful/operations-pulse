@@ -10,6 +10,9 @@ enough to get a useful pulse.
 It is an [Openly Useful](https://openlyuseful.org) project: useful things,
 openly made.
 
+Use the live, credential-safe setup guide at
+[operations-pulse-five.vercel.app](https://operations-pulse-five.vercel.app).
+
 ## What launches in v0.1
 
 - A SQLite ticket and pulse ledger.
