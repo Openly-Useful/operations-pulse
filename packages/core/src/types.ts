@@ -16,7 +16,7 @@ export const CONNECTION_STATES = [
   "error",
   "disconnected",
 ] as const;
-export const CONNECTION_MODES = ["local", "host-oauth", "env-token", "self-hosted"] as const;
+export const CONNECTION_MODES = ["local", "host-oauth", "env-token", "self-hosted", "github-cli"] as const;
 
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 export type TicketPriority = (typeof TICKET_PRIORITIES)[number];

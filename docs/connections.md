@@ -44,6 +44,15 @@ Each credential is supplied through a named environment variable. IMAP uses a
 JSON environment value containing `password` or `accessToken`; all other
 adapters use their provider's bearer or API token. None is saved to SQLite.
 
+GitHub also supports `github-cli` mode for a local machine already signed in
+with `gh auth login`. The adapter asks `gh auth token` only while it performs
+its bounded read-only check; it does not persist, print, or proxy the token.
+
+```bash
+operations-pulse connections configure --id github --mode github-cli
+operations-pulse connections test --id github
+```
+
 ```bash
 # Stores only the environment variable *name* and non-secret provider settings.
 operations-pulse connections configure --id sentry --mode env-token \

@@ -110,7 +110,8 @@ try {
     process.stdout.write(JSON.stringify(store.listConnections().map((connection) => ({
       ...connection,
       settings: Object.keys(connection.settings).sort(),
-      credentialPresent: Boolean(connection.credentialEnv && process.env[connection.credentialEnv]),
+      credentialPresent: connection.mode === "github-cli" ? null : Boolean(connection.credentialEnv && process.env[connection.credentialEnv]),
+      credentialSource: connection.mode === "github-cli" ? "local-github-cli" : "environment-variable-reference",
     })), null, 2) + "\n");
   } else if (args[0] === "connections" && args[1] === "configure") {
     const id = valueAfter(args, "--id");
@@ -126,7 +127,8 @@ try {
     process.stdout.write(JSON.stringify({
       ...connection,
       settings: Object.keys(connection.settings).sort(),
-      credentialPresent: Boolean(connection.credentialEnv && process.env[connection.credentialEnv]),
+      credentialPresent: connection.mode === "github-cli" ? null : Boolean(connection.credentialEnv && process.env[connection.credentialEnv]),
+      credentialSource: connection.mode === "github-cli" ? "local-github-cli" : "environment-variable-reference",
       secretStored: false,
     }, null, 2) + "\n");
   } else if (args[0] === "connections" && args[1] === "test") {

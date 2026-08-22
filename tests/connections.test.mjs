@@ -61,6 +61,27 @@ test("GitHub adapter validates a credential reference without exposing the token
   store.close();
 });
 
+test("GitHub CLI mode reads a local session only at test time and never records its token", async () => {
+  const store = storeFixture();
+  store.configureConnection({ id: "github", mode: "github-cli" });
+  const result = await testStoredConnection(store, "github", {
+    githubToken: () => "github-cli-test-token",
+    fetchImpl: async (_url, init) => {
+      assert.equal(init.headers.Authorization, "Bearer github-cli-test-token");
+      return new Response(JSON.stringify({ login: "local-gh-user" }), {
+        status: 200,
+        headers: { "x-oauth-scopes": "read:org, repo" },
+      });
+    },
+  });
+  assert.equal(result.status, "pass");
+  assert.equal(result.evidence.credentialSource, "local-github-cli");
+  assert.equal(JSON.stringify(result).includes("github-cli-test-token"), false);
+  assert.equal(store.getConnection("github")?.credentialEnv, null);
+  assert.equal(store.getConnection("github")?.state, "connected");
+  store.close();
+});
+
 test("IMAP adapter reads only unread-count metadata", async () => {
   const store = storeFixture();
   process.env.OPERATIONS_PULSE_TEST_IMAP = JSON.stringify({ password: "not-recorded" });

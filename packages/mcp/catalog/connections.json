@@ -49,11 +49,11 @@
       "label": "GitHub",
       "class": "free-or-subscription",
       "default": false,
-      "auth": "host OAuth connection or a fine-grained token held only in a named environment variable",
+      "auth": "existing local GitHub CLI session, host OAuth connection, or a fine-grained token held only in a named environment variable",
       "permissions": ["repository metadata", "issues and pull requests as granted"],
       "writes": "optional and separately approved",
       "status": "available",
-      "modes": ["host-oauth", "env-token"],
+      "modes": ["github-cli", "host-oauth", "env-token"],
       "settings": [],
       "disconnect": "operations-pulse connections disconnect --id github"
     },

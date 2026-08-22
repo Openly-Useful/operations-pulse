@@ -1,4 +1,5 @@
 import { ImapFlow } from "imapflow";
+import { spawnSync } from "node:child_process";
 import type { ConnectionCheck, ConnectionConfig, EventStatus } from "./types.js";
 import { OperationsStore } from "./db.js";
 
@@ -9,6 +10,7 @@ export type ImapClient = Pick<ImapFlow, "connect" | "logout" | "getMailboxLock" 
 export type ConnectionTestDependencies = {
   fetchImpl?: FetchLike;
   imapFactory?: (options: ConstructorParameters<typeof ImapFlow>[0]) => ImapClient;
+  githubToken?: () => string | null;
 };
 
 function check(
@@ -24,6 +26,13 @@ function credential(connection: ConnectionConfig): string | null {
   return connection.credentialEnv ? process.env[connection.credentialEnv] ?? null : null;
 }
 
+function githubCliToken(): string | null {
+  const result = spawnSync("gh", ["auth", "token"], { encoding: "utf8", timeout: 10_000 });
+  if (result.status !== 0) return null;
+  const token = result.stdout.trim();
+  return token || null;
+}
+
 function requiredSetting(connection: ConnectionConfig, key: string): string | null {
   const value = connection.settings[key]?.trim();
   return value || null;
@@ -33,11 +42,11 @@ function endpoint(connection: ConnectionConfig, fallback: string): string {
   return (connection.endpoint ?? fallback).replace(/\/$/, "");
 }
 
-function connectionError(connection: ConnectionConfig, reason: string): ConnectionCheck {
+function connectionError(connection: ConnectionConfig, reason: string, credentialPresent = Boolean(credential(connection))): ConnectionCheck {
   return check(connection.id, "blocked", reason, {
     configured: true,
     credentialReference: connection.credentialEnv,
-    credentialPresent: Boolean(credential(connection)),
+    credentialPresent,
     secretStored: false,
   });
 }
@@ -82,19 +91,27 @@ function asObject(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-async function testGitHub(connection: ConnectionConfig, fetchImpl: FetchLike): Promise<ConnectionCheck> {
-  const token = credential(connection);
-  if (!token) return connectionError(connection, `Set ${connection.credentialEnv ?? "a credential environment variable"} before testing GitHub.`);
+async function testGitHub(connection: ConnectionConfig, fetchImpl: FetchLike, suppliedToken?: () => string | null): Promise<ConnectionCheck> {
+  const token = connection.mode === "github-cli"
+    ? (suppliedToken ?? githubCliToken)()
+    : credential(connection);
+  if (!token) {
+    const instruction = connection.mode === "github-cli"
+      ? "Sign in with `gh auth login` before testing the GitHub CLI session."
+      : `Set ${connection.credentialEnv ?? "a credential environment variable"} before testing GitHub.`;
+    return connectionError(connection, instruction, false);
+  }
   const { response, json } = await getJson(
     fetchImpl,
     `${endpoint(connection, "https://api.github.com")}/user`,
     `Bearer ${token}`,
     { "X-GitHub-Api-Version": "2022-11-28" },
   );
-  if (!response.ok) return check(connection.id, "blocked", `GitHub rejected the configured credential (${response.status}).`, { status: response.status, secretStored: false });
+  if (!response.ok) return check(connection.id, "blocked", `GitHub rejected the configured credential (${response.status}).`, { status: response.status, credentialPresent: true, secretStored: false });
   const user = asObject(json);
   return check(connection.id, "pass", "GitHub read-only connection verified.", {
     account: typeof user.login === "string" ? user.login : "authenticated",
+    credentialSource: connection.mode === "github-cli" ? "local-github-cli" : "environment-variable-reference",
     scopes: response.headers.get("x-oauth-scopes")?.split(",").map((item) => item.trim()).filter(Boolean) ?? [],
     secretStored: false,
   });
@@ -231,7 +248,7 @@ export async function checkConnection(
       case "imap-email":
         return await testImap(connection, dependencies.imapFactory);
       case "github":
-        return await testGitHub(connection, fetchImpl);
+        return await testGitHub(connection, fetchImpl, dependencies.githubToken);
       case "linear":
         return await testLinear(connection, fetchImpl);
       case "sentry":
@@ -259,9 +276,11 @@ export async function testStoredConnection(
     return check(connectionId, "blocked", `Connection ${connectionId} is not configured. Configure it with the CLI before testing.`, { configured: false, secretStored: false });
   }
   const result = await checkConnection(connection, dependencies);
+  const credentialPresent = result.evidence.credentialPresent === true
+    || (connection.mode !== "github-cli" && Boolean(credential(connection)));
   const state = result.status === "pass" || result.status === "warn"
     ? "connected"
-    : credential(connection) ? "error" : "needs_credentials";
+    : credentialPresent ? "error" : "needs_credentials";
   store.markConnectionTest(connectionId, state, result.status === "blocked" ? result.summary : null);
   return result;
 }

@@ -121,6 +121,12 @@ function assertSafeConnectionInput(input: ConfigureConnectionInput): void {
   if (!CONNECTION_MODES.includes(input.mode)) {
     throw new Error(`Unsupported connection mode: ${input.mode}`);
   }
+  if (input.mode === "github-cli" && input.id !== "github") {
+    throw new Error("github-cli mode is available only for the GitHub connection.");
+  }
+  if (input.mode === "github-cli" && input.credentialEnv) {
+    throw new Error("github-cli reads the existing local GitHub CLI session and does not accept a credential environment variable.");
+  }
   if (input.credentialEnv && !/^[A-Z][A-Z0-9_]{1,127}$/.test(input.credentialEnv)) {
     throw new Error("credentialEnv must be an environment-variable name, never a credential value.");
   }
@@ -206,7 +212,7 @@ export class OperationsStore {
 
       CREATE TABLE IF NOT EXISTS connections (
         id TEXT PRIMARY KEY,
-        mode TEXT NOT NULL CHECK (mode IN ('local','host-oauth','env-token','self-hosted')),
+        mode TEXT NOT NULL CHECK (mode IN ('local','host-oauth','env-token','self-hosted','github-cli')),
         credential_env TEXT,
         endpoint TEXT,
         settings_json TEXT NOT NULL DEFAULT '{}',
@@ -222,6 +228,31 @@ export class OperationsStore {
       INSERT OR IGNORE INTO schema_migrations(version, applied_at)
         VALUES (2, datetime('now'));
     `);
+
+    const githubCliMigration = this.db.prepare("SELECT version FROM schema_migrations WHERE version = 3").get() as { version: number } | undefined;
+    if (!githubCliMigration) {
+      this.db.exec(`
+        BEGIN IMMEDIATE;
+        ALTER TABLE connections RENAME TO connections_before_github_cli;
+        CREATE TABLE connections (
+          id TEXT PRIMARY KEY,
+          mode TEXT NOT NULL CHECK (mode IN ('local','host-oauth','env-token','self-hosted','github-cli')),
+          credential_env TEXT,
+          endpoint TEXT,
+          settings_json TEXT NOT NULL DEFAULT '{}',
+          state TEXT NOT NULL CHECK (state IN ('configured','connected','needs_credentials','error','disconnected')),
+          configured_at TEXT NOT NULL,
+          tested_at TEXT,
+          last_error TEXT
+        );
+        INSERT INTO connections (id, mode, credential_env, endpoint, settings_json, state, configured_at, tested_at, last_error)
+          SELECT id, mode, credential_env, endpoint, settings_json, state, configured_at, tested_at, last_error
+          FROM connections_before_github_cli;
+        DROP TABLE connections_before_github_cli;
+        INSERT INTO schema_migrations(version, applied_at) VALUES (3, datetime('now'));
+        COMMIT;
+      `);
+    }
   }
 
   close(): void {

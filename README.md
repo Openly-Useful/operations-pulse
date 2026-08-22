@@ -51,6 +51,16 @@ node packages/core/dist/cli.js connections test --id github
 node packages/core/dist/cli.js pulse run --root . --connections github
 ```
 
+On a local machine already authenticated with the GitHub CLI, the zero-copy
+alternative uses that session only for the read-only check; its token is never
+stored or printed:
+
+```bash
+gh auth login
+node packages/core/dist/cli.js connections configure --id github --mode github-cli
+node packages/core/dist/cli.js connections test --id github
+```
+
 The browser-based picker at `apps/site` generates these safe setup steps. It
 never collects credentials. Host OAuth remains in the host's own consent UI.
 
