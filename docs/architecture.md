@@ -12,7 +12,7 @@ Pulse runner ----> deterministic local checks
        v                    v
 SQLite ledger <---- evidence and explicit tickets
        |
-       +---- MCP tools ---- host connection UI ---- optional services
+       +---- MCP read tools ---- guided local setup ---- optional services
        |
        +---- CLI / site / future agent runtime
 ```
@@ -39,9 +39,10 @@ delegated work.
 
 ## Connection boundary
 
-MCP standardizes tools and context, but the host owns the connection picker,
-OAuth or credential prompt, consent screen, and secret store. Operations Pulse
-publishes connection contracts so a compatible host can render a guided picker:
+MCP standardizes tools and context. The static project site and CLI provide a
+guided setup chooser, while a compatible host owns OAuth, the consent screen,
+and its secret store. Operations Pulse publishes connection contracts so a host
+or the local picker can render a consistent path:
 
 1. Free/local or hosted.
 2. Existing connected account, OAuth, API key, or self-hosted URL.
@@ -49,3 +50,16 @@ publishes connection contracts so a compatible host can render a guided picker:
 4. Test connection.
 5. Save outside the repository.
 6. Show the tools enabled by that connection.
+
+The local connection ledger stores only a connection ID, non-secret settings,
+optional endpoint, test state, and a credential environment-variable name. It
+does not store, return, or accept credential values through MCP. Read-only
+adapters are isolated from remote mutation controls.
+
+## Heartbeat boundary
+
+Foreground heartbeats run in the process that the operator starts. macOS users
+can install one named LaunchAgent only after inspecting a generated plan and
+passing `--confirm-install`; removal requires its own confirmation. The launch
+agent invokes the same CLI as a human, uses the operator-selected workspace and
+database, and never creates tickets unless that option is explicit.

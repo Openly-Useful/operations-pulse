@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "description": "Local-first operational heartbeats, durable tickets, and governed connection discovery.",
+  "name": "operations-pulse",
+  "owner": {
+    "email": "hello@openlyuseful.org",
+    "name": "Openly Useful",
+    "url": "https://openlyuseful.org"
+  },
+  "plugins": [
+    {
+      "author": {
+        "email": "hello@openlyuseful.org",
+        "name": "Openly Useful",
+        "url": "https://openlyuseful.org"
+      },
+      "category": "productivity",
+      "description": "Run governed local operational heartbeats and maintain durable ticket memory.",
+      "name": "operations-pulse",
+      "source": "./plugins/claude/operations-pulse",
+      "strict": true,
+      "version": "0.1.0"
+    }
+  ],
+  "version": "0.1.0"
+}

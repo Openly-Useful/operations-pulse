@@ -14,5 +14,18 @@
     "createFromPulse": false,
     "defaultPriority": "medium"
   },
-  "connections": {}
+  "connections": {
+    "github": {
+      "mode": "env-token",
+      "credentialEnv": "OPERATIONS_PULSE_GITHUB_TOKEN"
+    },
+    "sentry": {
+      "mode": "self-hosted",
+      "credentialEnv": "OPERATIONS_PULSE_SENTRY_TOKEN",
+      "endpoint": "https://sentry.example.com",
+      "settings": {
+        "organization": "your-organization"
+      }
+    }
+  }
 }

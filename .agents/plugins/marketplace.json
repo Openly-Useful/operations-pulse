@@ -1,0 +1,20 @@
+{
+  "interface": {
+    "displayName": "Openly Useful"
+  },
+  "name": "operations-pulse",
+  "plugins": [
+    {
+      "category": "Productivity",
+      "name": "operations-pulse",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./plugins/openai/operations-pulse",
+        "source": "local"
+      }
+    }
+  ]
+}

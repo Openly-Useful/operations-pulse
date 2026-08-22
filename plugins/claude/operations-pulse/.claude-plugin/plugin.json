@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "author": {
+    "email": "hello@openlyuseful.org",
+    "name": "Openly Useful",
+    "url": "https://openlyuseful.org"
+  },
+  "description": "Run governed local operational heartbeats and maintain durable ticket memory.",
+  "homepage": "https://openlyuseful.org",
+  "license": "MIT",
+  "name": "operations-pulse",
+  "repository": "https://github.com/Openly-Useful/operations-pulse",
+  "skills": "./skills/",
+  "version": "0.1.0"
+}

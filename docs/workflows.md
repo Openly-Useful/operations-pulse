@@ -10,6 +10,17 @@
 6. Create or update tickets only within the selected policy.
 7. Report new signals, repeated noise, blockers, and recommended human actions.
 
+## Schedule a heartbeat
+
+1. Run `schedule plan` with the exact workspace, interval, log paths, selected
+   read-only connections, and ticket policy.
+2. Review the generated command and the only user-level file it would write.
+3. Install only with `--confirm-install`; this is a local operator action, never
+   an MCP request or model-generated confirmation.
+4. Use `schedule status` and pulse history to verify real execution.
+5. Remove only with `schedule uninstall --confirm-uninstall` when the heartbeat
+   is no longer intended.
+
 ## Staff a ticket
 
 1. Load the ticket and search related prior tickets.

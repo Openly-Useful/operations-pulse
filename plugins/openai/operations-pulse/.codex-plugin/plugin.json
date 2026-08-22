@@ -1,0 +1,34 @@
+{
+  "author": {
+    "email": "hello@openlyuseful.org",
+    "name": "Openly Useful",
+    "url": "https://openlyuseful.org"
+  },
+  "description": "Run governed local operational heartbeats and maintain durable ticket memory.",
+  "homepage": "https://openlyuseful.org",
+  "interface": {
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "category": "Productivity",
+    "defaultPrompt": [
+      "Run a read-only operations pulse and report evidence-backed signals.",
+      "Review related operational tickets before proposing new work.",
+      "Describe available connections, costs, scopes, and approval boundaries."
+    ],
+    "developerName": "Openly Useful",
+    "displayName": "Operations Pulse",
+    "longDescription": "Run local repository, documentation, and log checks; correlate signals with durable ticket memory; and explain governed connection options without treating agent output as authority.",
+    "privacyPolicyURL": "https://openlyuseful.org/legal/privacy",
+    "shortDescription": "Governed operational heartbeats and ticket memory",
+    "supportURL": "https://openlyuseful.org/support",
+    "termsOfServiceURL": "https://openlyuseful.org/legal/terms",
+    "websiteURL": "https://openlyuseful.org"
+  },
+  "license": "MIT",
+  "name": "operations-pulse",
+  "repository": "https://github.com/Openly-Useful/operations-pulse",
+  "skills": "./skills/",
+  "version": "0.1.0"
+}

@@ -1,0 +1,23 @@
+version: 1
+project: example-project
+external_mutations_enabled: false
+gates:
+  foundation:
+    status: planned
+    requires: [repository-identity, safety-policy, test-baseline]
+streams:
+  - id: foundation
+    owner: operations-lead
+    dependencies: []
+    paths: [README.md, docs, packages/core]
+  - id: integrations
+    owner: integration-steward
+    dependencies: [foundation]
+    paths: [catalog, packages/mcp]
+  - id: release
+    owner: operations-lead
+    dependencies: [foundation, integrations]
+    paths: [.github, docs/launch.md]
+operation_enablement:
+  public_release:
+    required: [tests-pass, licenses-reviewed, secrets-scan-pass, explicit-human-approval]

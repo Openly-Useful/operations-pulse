@@ -3,8 +3,9 @@
 ## Report a vulnerability
 
 Do not open a public issue for secrets, credential exposure, authorization
-bypass, or destructive-action vulnerabilities. Use GitHub's private security
-advisory flow for the repository.
+bypass, or destructive-action vulnerabilities. Email
+`hello@openlyuseful.org` with the subject `SECURITY`. Do not include live
+credentials or customer content; provide the minimum reproduction details.
 
 ## Trust boundaries
 

@@ -169,22 +169,61 @@
           <div class="connection-row" role="row">
             <strong role="cell">Email</strong>
             <span role="cell">IMAP · bring your account</span>
-            <span role="cell">Planned adapter</span>
+            <span role="cell" class="available">Available · read only</span>
           </div>
           <div class="connection-row" role="row">
             <strong role="cell">GitHub and Linear</strong>
             <span role="cell">Connected account or token</span>
-            <span role="cell">Planned adapter</span>
+            <span role="cell" class="available">Available · read only</span>
           </div>
           <div class="connection-row" role="row">
             <strong role="cell">PostHog and Sentry</strong>
             <span role="cell">Self-hosted or cloud</span>
-            <span role="cell">Planned adapter</span>
+            <span role="cell" class="available">Available · read only</span>
           </div>
           <div class="connection-row" role="row">
             <strong role="cell">Model interpretation</strong>
             <span role="cell">Local model, subscription, or API</span>
             <span role="cell">Optional by design</span>
+          </div>
+        </div>
+        <div class="connection-picker" aria-labelledby="connection-picker-title">
+          <div>
+            <p class="section-kicker">Guided setup</p>
+            <h3 id="connection-picker-title">Choose a path; keep credentials outside the browser.</h3>
+            <p>
+              This picker generates a reviewable local setup command. It never asks
+              for, stores, or transmits a credential. OAuth stays in a compatible
+              host's own approval screen; bring-your-own credentials stay in your
+              environment or secret manager.
+            </p>
+          </div>
+          <form id="connection-form" class="connection-form">
+            <label>
+              Service
+              <select id="connection-service" name="service">
+                <option value="imap-email">IMAP email</option>
+                <option value="github">GitHub</option>
+                <option value="linear">Linear</option>
+                <option value="sentry">Sentry</option>
+                <option value="posthog">PostHog</option>
+              </select>
+            </label>
+            <label>
+              Setup mode
+              <select id="connection-mode" name="mode">
+                <option value="host-oauth">Use host OAuth</option>
+                <option value="env-token">Use my environment / secret manager</option>
+                <option value="self-hosted">Use my self-hosted endpoint</option>
+              </select>
+            </label>
+            <button class="button primary" type="submit">Generate safe setup</button>
+          </form>
+          <div class="setup-result" aria-live="polite" hidden>
+            <p class="setup-title"></p>
+            <pre><code class="setup-command"></code></pre>
+            <button class="copy-command" type="button">Copy command</button>
+            <p class="setup-note"></p>
           </div>
         </div>
       </section>
@@ -234,5 +273,6 @@
       </div>
       <p>Operations Pulse · Preparing v0.1 · MIT licensed</p>
     </footer>
+    <script type="module" src="./connections.js"></script>
   </body>
 </html>

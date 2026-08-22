@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "org.openlyuseful/operations-pulse",
+  "title": "Operations Pulse",
+  "description": "Local-first operational pulses, durable ticket memory, and governed connection discovery.",
+  "repository": {
+    "url": "https://github.com/Openly-Useful/operations-pulse",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@openly-useful/operations-pulse-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/server";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import {
   OperationsStore,
   TICKET_PRIORITIES,
   TICKET_STATUSES,
+  heartbeatStatus,
+  runConnectedPulse,
   runPulse,
 } from "@openly-useful/operations-pulse-core";
 import { z } from "zod";
@@ -15,7 +18,9 @@ import { z } from "zod";
 type JsonObject = Record<string, unknown>;
 
 function loadCatalog(name: "tools" | "connections"): JsonObject {
-  const url = new URL(`../../../catalog/${name}.json`, import.meta.url);
+  const packaged = new URL(`../catalog/${name}.json`, import.meta.url);
+  const repository = new URL(`../../../catalog/${name}.json`, import.meta.url);
+  const url = existsSync(fileURLToPath(packaged)) ? packaged : repository;
   return JSON.parse(readFileSync(url, "utf8")) as JsonObject;
 }
 
@@ -121,6 +126,7 @@ server.registerTool(
         .array(z.string().min(1).max(100))
         .max(30)
         .default(["error", "warn", "retry", "timeout"]),
+      connection_ids: z.array(z.string().min(1).max(63)).max(10).default([]),
     }),
     annotations: {
       readOnlyHint: false,
@@ -129,16 +135,18 @@ server.registerTool(
       openWorldHint: false,
     },
   },
-  async (input) =>
-    response(
-      runPulse(store, {
+  async (input) => {
+    const options = {
         workspace: input.workspace,
         createTickets: input.create_tickets,
         localLogs: input.log_paths.length
           ? { paths: input.log_paths, patterns: input.log_patterns }
           : undefined,
-      }),
-    ),
+    };
+    return response(input.connection_ids.length
+      ? await runConnectedPulse(store, { ...options, connectionIds: input.connection_ids })
+      : runPulse(store, options));
+  },
 );
 
 server.registerTool(
@@ -183,6 +191,54 @@ server.registerTool(
       connections: status ? values.filter((item) => item.status === status) : values,
     });
   },
+);
+
+server.registerTool(
+  "connections_status",
+  {
+    title: "Read configured connection status",
+    description:
+      "Read local connection state, last test result, and whether a referenced environment credential is present. Never returns credential values or private settings.",
+    inputSchema: z.object({}),
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
+  },
+  async () => response({
+    connections: store.listConnections().map((connection) => ({
+      id: connection.id,
+      mode: connection.mode,
+      endpoint: connection.endpoint,
+      state: connection.state,
+      configuredAt: connection.configuredAt,
+      testedAt: connection.testedAt,
+      lastError: connection.lastError,
+      settingKeys: Object.keys(connection.settings).sort(),
+      credentialReference: connection.credentialEnv,
+      credentialPresent: Boolean(connection.credentialEnv && process.env[connection.credentialEnv]),
+      secretStored: false,
+    })),
+  }),
+);
+
+server.registerTool(
+  "heartbeat_schedule_status",
+  {
+    title: "Read heartbeat scheduler status",
+    description:
+      "Read whether the optional local heartbeat scheduler is installed. Installation and removal stay CLI-only and require explicit local confirmation.",
+    inputSchema: z.object({}),
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
+  },
+  async () => response(heartbeatStatus()),
 );
 
 const transport = new StdioServerTransport();

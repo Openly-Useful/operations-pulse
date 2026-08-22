@@ -1,8 +1,9 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import type { EventStatus, PulseOptions, PulseResult, Ticket } from "./types.js";
+import type { ConnectedPulseOptions, ConnectionCheck, EventStatus, PulseOptions, PulseResult, Ticket } from "./types.js";
 import { OperationsStore } from "./db.js";
+import { testStoredConnections } from "./connections.js";
 
 type CheckResult = {
   checkId: string;
@@ -69,6 +70,10 @@ function checkLocalLogs(workspace: string, paths: string[], patterns: string[]):
     const path = isAbsolute(configuredPath) ? configuredPath : resolve(workspace, configuredPath);
     try {
       const size = statSync(path).size;
+      if (size > 5_000_000) {
+        unavailable.push({ path, reason: "File exceeded the recommended 5 MB scan size." });
+        continue;
+      }
       const text = readFileSync(path, "utf8");
       const lines = text.split("\n");
       lines.forEach((line, index) => {
@@ -80,9 +85,6 @@ function checkLocalLogs(workspace: string, paths: string[], patterns: string[]):
           }
         }
       });
-      if (size > 5_000_000) {
-        unavailable.push({ path, reason: "File exceeded the recommended 5 MB scan size." });
-      }
     } catch (error) {
       unavailable.push({ path, reason: error instanceof Error ? error.message : String(error) });
     }
@@ -107,11 +109,8 @@ function checkLocalLogs(workspace: string, paths: string[], patterns: string[]):
   };
 }
 
-export function runPulse(store: OperationsStore, options: PulseOptions): PulseResult {
-  const workspace = resolve(options.workspace);
-  const run = store.startPulse(workspace);
+function localChecks(workspace: string, options: PulseOptions): CheckResult[] {
   const checks: CheckResult[] = [checkGit(workspace), checkDocs(workspace)];
-
   if (options.localLogs?.paths.length) {
     checks.push(
       checkLocalLogs(
@@ -121,10 +120,18 @@ export function runPulse(store: OperationsStore, options: PulseOptions): PulseRe
       ),
     );
   }
+  return checks;
+}
 
+function completePulse(
+  store: OperationsStore,
+  runId: string,
+  checks: Array<CheckResult | ConnectionCheck>,
+  createTickets: boolean | undefined,
+): PulseResult {
   const events = checks.map((check) =>
     store.recordEvent({
-      runId: run.id,
+      runId,
       checkId: check.checkId,
       status: check.status,
       summary: check.summary,
@@ -132,9 +139,8 @@ export function runPulse(store: OperationsStore, options: PulseOptions): PulseRe
       ticketId: null,
     }),
   );
-
   const createdTickets: Ticket[] = [];
-  if (options.createTickets) {
+  if (createTickets) {
     for (const event of events.filter((item) => item.status === "warn" || item.status === "fail")) {
       const existing = store.listTickets({ query: event.checkId, limit: 10 }).find(
         (ticket) => ticket.status !== "done" && ticket.status !== "closed",
@@ -145,7 +151,7 @@ export function runPulse(store: OperationsStore, options: PulseOptions): PulseRe
           description: `Generated from pulse check ${event.checkId}. Review the pulse evidence before staffing.`,
           priority: event.status === "fail" ? "high" : "medium",
           source: "pulse",
-          sourceRef: `pulse:${run.id}:${event.checkId}`,
+          sourceRef: `pulse:${runId}:${event.checkId}`,
           tags: ["pulse", event.checkId],
         });
         store.attachEventTicket(event.id, ticket.id);
@@ -154,7 +160,6 @@ export function runPulse(store: OperationsStore, options: PulseOptions): PulseRe
       }
     }
   }
-
   const counts = Object.fromEntries(
     ["pass", "warn", "fail", "blocked"].map((status) => [
       status,
@@ -162,7 +167,19 @@ export function runPulse(store: OperationsStore, options: PulseOptions): PulseRe
     ]),
   );
   const summary = `${events.length} checks: ${counts.pass} passed, ${counts.warn} warned, ${counts.fail} failed, ${counts.blocked} blocked; ${createdTickets.length} tickets created.`;
-  const completedRun = store.completePulse(run.id, summary);
-
+  const completedRun = store.completePulse(runId, summary);
   return { run: completedRun, events, createdTickets };
+}
+
+export function runPulse(store: OperationsStore, options: PulseOptions): PulseResult {
+  const workspace = resolve(options.workspace);
+  const run = store.startPulse(workspace);
+  return completePulse(store, run.id, localChecks(workspace, options), options.createTickets);
+}
+
+export async function runConnectedPulse(store: OperationsStore, options: ConnectedPulseOptions): Promise<PulseResult> {
+  const workspace = resolve(options.workspace);
+  const run = store.startPulse(workspace);
+  const connections = await testStoredConnections(store, options.connectionIds);
+  return completePulse(store, run.id, [...localChecks(workspace, options), ...connections], options.createTickets);
 }

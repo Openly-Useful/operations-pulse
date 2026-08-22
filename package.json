@@ -15,7 +15,9 @@
     "build": "npm run build --workspaces --if-present",
     "test": "node --test tests/*.test.mjs",
     "validate": "node scripts/validate.mjs",
-    "check": "npm run build && npm test && npm run validate",
+    "registration:check": "node scripts/sync-registrations.mjs check",
+    "registration:sync": "node scripts/sync-registrations.mjs write",
+    "check": "npm run build && npm test && npm run validate && npm run registration:check",
     "pulse": "node packages/core/dist/cli.js",
     "mcp": "node packages/mcp/dist/index.js"
   },

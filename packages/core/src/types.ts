@@ -9,10 +9,20 @@ export const TICKET_STATUSES = [
 
 export const TICKET_PRIORITIES = ["low", "medium", "high", "urgent"] as const;
 export const EVENT_STATUSES = ["pass", "warn", "fail", "blocked"] as const;
+export const CONNECTION_STATES = [
+  "configured",
+  "connected",
+  "needs_credentials",
+  "error",
+  "disconnected",
+] as const;
+export const CONNECTION_MODES = ["local", "host-oauth", "env-token", "self-hosted"] as const;
 
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 export type TicketPriority = (typeof TICKET_PRIORITIES)[number];
 export type EventStatus = (typeof EVENT_STATUSES)[number];
+export type ConnectionState = (typeof CONNECTION_STATES)[number];
+export type ConnectionMode = (typeof CONNECTION_MODES)[number];
 
 export interface Ticket {
   id: string;
@@ -74,6 +84,38 @@ export interface PulseOptions {
   workspace: string;
   createTickets?: boolean;
   localLogs?: LocalLogCheck;
+}
+
+export interface ConnectionConfig {
+  id: string;
+  mode: ConnectionMode;
+  credentialEnv: string | null;
+  endpoint: string | null;
+  settings: Record<string, string>;
+  state: ConnectionState;
+  configuredAt: string;
+  testedAt: string | null;
+  lastError: string | null;
+}
+
+export interface ConfigureConnectionInput {
+  id: string;
+  mode: ConnectionMode;
+  credentialEnv?: string;
+  endpoint?: string;
+  settings?: Record<string, string>;
+}
+
+export interface ConnectionCheck {
+  connectionId: string;
+  checkId: string;
+  status: EventStatus;
+  summary: string;
+  evidence: Record<string, unknown>;
+}
+
+export interface ConnectedPulseOptions extends PulseOptions {
+  connectionIds: string[];
 }
 
 export interface PulseResult {

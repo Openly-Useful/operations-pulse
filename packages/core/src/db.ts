@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { CONNECTION_MODES } from "./types.js";
 import type {
   CreateTicketInput,
   PulseEvent,
@@ -10,6 +11,9 @@ import type {
   TicketPriority,
   TicketQuery,
   TicketStatus,
+  ConnectionConfig,
+  ConfigureConnectionInput,
+  ConnectionState,
 } from "./types.js";
 
 type TicketRow = {
@@ -43,6 +47,18 @@ type EventRow = {
   evidence_json: string;
   ticket_id: string | null;
   created_at: string;
+};
+
+type ConnectionRow = {
+  id: string;
+  mode: ConnectionConfig["mode"];
+  credential_env: string | null;
+  endpoint: string | null;
+  settings_json: string;
+  state: ConnectionState;
+  configured_at: string;
+  tested_at: string | null;
+  last_error: string | null;
 };
 
 function ticketFromRow(row: TicketRow): Ticket {
@@ -82,6 +98,50 @@ function eventFromRow(row: EventRow): PulseEvent {
     ticketId: row.ticket_id,
     createdAt: row.created_at,
   };
+}
+
+function connectionFromRow(row: ConnectionRow): ConnectionConfig {
+  return {
+    id: row.id,
+    mode: row.mode,
+    credentialEnv: row.credential_env,
+    endpoint: row.endpoint,
+    settings: JSON.parse(row.settings_json) as Record<string, string>,
+    state: row.state,
+    configuredAt: row.configured_at,
+    testedAt: row.tested_at,
+    lastError: row.last_error,
+  };
+}
+
+function assertSafeConnectionInput(input: ConfigureConnectionInput): void {
+  if (!/^[a-z0-9][a-z0-9-]{0,62}$/.test(input.id)) {
+    throw new Error("Connection ID must be a lowercase catalog-style identifier.");
+  }
+  if (!CONNECTION_MODES.includes(input.mode)) {
+    throw new Error(`Unsupported connection mode: ${input.mode}`);
+  }
+  if (input.credentialEnv && !/^[A-Z][A-Z0-9_]{1,127}$/.test(input.credentialEnv)) {
+    throw new Error("credentialEnv must be an environment-variable name, never a credential value.");
+  }
+  if (input.endpoint) {
+    const url = new URL(input.endpoint);
+    const localHttp = url.protocol === "http:" && ["localhost", "127.0.0.1", "::1"].includes(url.hostname);
+    if (url.protocol !== "https:" && !localHttp) {
+      throw new Error("Connection endpoint must use HTTPS, except for explicit loopback self-hosted development.");
+    }
+    if (url.username || url.password) {
+      throw new Error("Connection endpoint must not embed credentials.");
+    }
+  }
+  for (const [key, value] of Object.entries(input.settings ?? {})) {
+    if (!/^[a-z][a-z0-9_]{0,63}$/.test(key) || /token|secret|password|credential|api_?key/i.test(key)) {
+      throw new Error("Connection settings may contain only non-secret, lowercase configuration keys.");
+    }
+    if (typeof value !== "string" || value.length > 500 || /[\r\n]/.test(value)) {
+      throw new Error(`Connection setting ${key} must be one short single-line string.`);
+    }
+  }
 }
 
 export class OperationsStore {
@@ -144,8 +204,23 @@ export class OperationsStore {
       CREATE INDEX IF NOT EXISTS pulse_events_run_idx
         ON pulse_events(run_id, created_at);
 
+      CREATE TABLE IF NOT EXISTS connections (
+        id TEXT PRIMARY KEY,
+        mode TEXT NOT NULL CHECK (mode IN ('local','host-oauth','env-token','self-hosted')),
+        credential_env TEXT,
+        endpoint TEXT,
+        settings_json TEXT NOT NULL DEFAULT '{}',
+        state TEXT NOT NULL CHECK (state IN ('configured','connected','needs_credentials','error','disconnected')),
+        configured_at TEXT NOT NULL,
+        tested_at TEXT,
+        last_error TEXT
+      );
+
       INSERT OR IGNORE INTO schema_migrations(version, applied_at)
         VALUES (1, datetime('now'));
+
+      INSERT OR IGNORE INTO schema_migrations(version, applied_at)
+        VALUES (2, datetime('now'));
     `);
   }
 
@@ -294,5 +369,78 @@ export class OperationsStore {
       ).map(eventFromRow);
       return run;
     });
+  }
+
+  configureConnection(input: ConfigureConnectionInput): ConnectionConfig {
+    assertSafeConnectionInput(input);
+    const now = new Date().toISOString();
+    const existing = this.getConnection(input.id);
+    const connection: ConnectionConfig = {
+      id: input.id,
+      mode: input.mode,
+      credentialEnv: input.credentialEnv?.trim() || null,
+      endpoint: input.endpoint?.trim() || null,
+      settings: input.settings ?? {},
+      state: "configured",
+      configuredAt: existing?.configuredAt ?? now,
+      testedAt: null,
+      lastError: null,
+    };
+    this.db
+      .prepare(`
+        INSERT INTO connections
+          (id, mode, credential_env, endpoint, settings_json, state, configured_at, tested_at, last_error)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          mode = excluded.mode,
+          credential_env = excluded.credential_env,
+          endpoint = excluded.endpoint,
+          settings_json = excluded.settings_json,
+          state = excluded.state,
+          tested_at = excluded.tested_at,
+          last_error = excluded.last_error
+      `)
+      .run(
+        connection.id,
+        connection.mode,
+        connection.credentialEnv,
+        connection.endpoint,
+        JSON.stringify(connection.settings),
+        connection.state,
+        connection.configuredAt,
+        connection.testedAt,
+        connection.lastError,
+      );
+    return connection;
+  }
+
+  getConnection(id: string): ConnectionConfig | null {
+    const row = this.db.prepare("SELECT * FROM connections WHERE id = ?").get(id) as ConnectionRow | undefined;
+    return row ? connectionFromRow(row) : null;
+  }
+
+  listConnections(): ConnectionConfig[] {
+    return (this.db.prepare("SELECT * FROM connections ORDER BY id").all() as ConnectionRow[]).map(connectionFromRow);
+  }
+
+  markConnectionTest(id: string, state: ConnectionState, lastError: string | null = null): ConnectionConfig {
+    const testedAt = new Date().toISOString();
+    this.db
+      .prepare("UPDATE connections SET state = ?, tested_at = ?, last_error = ? WHERE id = ?")
+      .run(state, testedAt, lastError, id);
+    const connection = this.getConnection(id);
+    if (!connection) throw new Error(`Connection not found: ${id}`);
+    return connection;
+  }
+
+  disconnectConnection(id: string): ConnectionConfig {
+    const existing = this.getConnection(id);
+    if (!existing) throw new Error(`Connection not found: ${id}`);
+    this.db
+      .prepare("UPDATE connections SET credential_env = NULL, state = 'disconnected', tested_at = NULL, last_error = NULL WHERE id = ?")
+      .run(id);
+    const connection = this.getConnection(id);
+    if (!connection) throw new Error(`Connection not found: ${id}`);
+    return connection;
   }
 }
