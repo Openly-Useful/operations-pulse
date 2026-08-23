@@ -204,8 +204,12 @@ if (registry.$schema !== "https://static.modelcontextprotocol.io/schemas/2025-12
 }
 for (const [label, packageManifest] of [["core", corePackage], ["MCP", mcpPackage]]) {
   const expectedPrepublish = `node ../../scripts/assert-publish-ready.mjs --package ${label === "core" ? "core" : "mcp"}`;
+  const expectedBin = label === "core"
+    ? { "operations-pulse": "dist/cli.js" }
+    : { "operations-pulse-mcp": "dist/index.js" };
   if (packageManifest.private !== false
     || packageManifest.scripts?.prepublishOnly !== expectedPrepublish
+    || !same(packageManifest.bin, expectedBin)
     || packageManifest.publishConfig?.access !== "public"
     || packageManifest.homepage !== expectedPublisher.url
     || packageManifest.bugs !== expectedPolicies.support) {

@@ -126,6 +126,8 @@ function packageErrors(packageId) {
   if (manifest.name !== expected.name
     || manifest.version !== "0.1.0"
     || manifest.private !== false
+    || manifest.bin?.[packageId === "core" ? "operations-pulse" : "operations-pulse-mcp"]
+      !== (packageId === "core" ? "dist/cli.js" : "dist/index.js")
     || manifest.repository?.url !== "git+https://github.com/Openly-Useful/operations-pulse.git"
     || manifest.repository?.directory !== expected.directory
     || manifest.homepage !== "https://openlyuseful.org"

@@ -108,6 +108,8 @@ test("npm artifact gate accepts founder authorization while provider review rema
     json("packages/mcp/package.json").scripts.prepublishOnly,
     "node ../../scripts/assert-publish-ready.mjs --package mcp",
   );
+  assert.deepEqual(json("packages/core/package.json").bin, { "operations-pulse": "dist/cli.js" });
+  assert.deepEqual(json("packages/mcp/package.json").bin, { "operations-pulse-mcp": "dist/index.js" });
 
   const ready = spawnSync(
     process.execPath,

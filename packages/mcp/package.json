@@ -9,7 +9,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "operations-pulse-mcp": "./dist/index.js"
+    "operations-pulse-mcp": "dist/index.js"
   },
   "files": [
     "dist",

@@ -8,7 +8,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "operations-pulse": "./dist/cli.js"
+    "operations-pulse": "dist/cli.js"
   },
   "files": [
     "dist",
