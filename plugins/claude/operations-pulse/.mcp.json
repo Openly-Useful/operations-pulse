@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "operations-pulse": {
+      "args": [
+        "--yes",
+        "@openly-useful/operations-pulse-mcp@0.1.0"
+      ],
+      "command": "npx"
+    }
+  }
+}

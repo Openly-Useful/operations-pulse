@@ -8,8 +8,9 @@
   "description": "Run governed local operational heartbeats and maintain durable ticket memory.",
   "homepage": "https://openlyuseful.org",
   "license": "MIT",
+  "mcpServers": "./.mcp.json",
   "name": "operations-pulse",
   "repository": "https://github.com/Openly-Useful/operations-pulse",
   "skills": "./skills/",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

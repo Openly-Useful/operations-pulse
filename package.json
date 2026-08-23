@@ -1,6 +1,6 @@
 {
   "name": "operations-pulse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Local-first operational heartbeats, durable tickets, and governed tool connections.",
   "license": "MIT",

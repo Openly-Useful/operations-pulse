@@ -37,7 +37,7 @@ test("publisher mirror keeps the one-entity boundary founder-operated and format
   ]);
 });
 
-test("Codex and Claude catalogs point to self-contained generated skill wrappers", () => {
+test("Codex and Claude catalogs point to generated plugin wrappers", () => {
   const codex = json(".agents/plugins/marketplace.json");
   const claude = json(".claude-plugin/marketplace.json");
   const version = json("package.json").version;
@@ -73,11 +73,10 @@ test("provider wrapper manifests derive publisher identity and policy URLs", () 
     assert.equal(manifest.version, version);
     assert.equal(manifest.skills, "./skills/");
     assert.deepEqual(manifest.author, author);
-    assert.equal("mcpServers" in manifest, false);
+    assert.equal(manifest.mcpServers, "./.mcp.json");
   }
   assert.equal(openai.interface.privacyPolicyURL, publisher.policies.privacy);
   assert.equal(openai.interface.termsOfServiceURL, publisher.policies.terms);
-  assert.equal(openai.interface.supportURL, publisher.policies.support);
 });
 
 test("official MCP Registry and npm identities agree", () => {
@@ -94,6 +93,34 @@ test("official MCP Registry and npm identities agree", () => {
   assert.equal(registry.packages[0].identifier, packageManifest.name);
   assert.equal(registry.packages[0].version, packageManifest.version);
   assert.equal(registry.packages[0].transport.type, "stdio");
+});
+
+test("Codex and Claude plugins register the immutable MCP stdio package", () => {
+  const pluginVersion = json("package.json").version;
+  const mcpPackage = json("packages/mcp/package.json");
+  const codexPlugin = json("plugins/openai/operations-pulse/.codex-plugin/plugin.json");
+  const claudePlugin = json("plugins/claude/operations-pulse/.claude-plugin/plugin.json");
+  const claudeMarketplace = json(".claude-plugin/marketplace.json");
+  const expectedMcp = {
+    mcpServers: {
+      "operations-pulse": {
+        args: ["--yes", "@openly-useful/operations-pulse-mcp@0.1.0"],
+        command: "npx",
+      },
+    },
+  };
+
+  assert.equal(pluginVersion, "0.1.1");
+  assert.equal(mcpPackage.version, "0.1.0");
+  assert.equal(codexPlugin.version, pluginVersion);
+  assert.equal(claudePlugin.version, pluginVersion);
+  assert.equal(claudeMarketplace.version, pluginVersion);
+  assert.equal(claudeMarketplace.plugins[0].version, pluginVersion);
+  assert.equal(codexPlugin.mcpServers, "./.mcp.json");
+  assert.equal(claudePlugin.mcpServers, "./.mcp.json");
+  assert.deepEqual(json("plugins/openai/operations-pulse/.mcp.json"), expectedMcp);
+  assert.deepEqual(json("plugins/claude/operations-pulse/.mcp.json"), expectedMcp);
+  assert.equal("env" in expectedMcp.mcpServers["operations-pulse"], false);
 });
 
 test("npm artifact gate accepts founder authorization while provider review remains tracked", () => {

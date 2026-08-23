@@ -39,9 +39,11 @@ read-only except for storing the pulse record.
 
 ## Run locally
 
-These commands are for a source checkout after building the repository. A
-marketplace plugin installs the portable skill only; it does not install an
-npm package, register an MCP server, or change host settings.
+These commands are for a source checkout after building the repository. The
+marketplace plugin installs the portable skill and registers the pinned
+`@openly-useful/operations-pulse-mcp@0.1.0` stdio server through `npx`. Start a
+new task after install or upgrade so the host refreshes its MCP tool registry.
+The plugin does not install a scheduler, configure adapters, or collect credentials.
 
 ```bash
 node packages/core/dist/cli.js init

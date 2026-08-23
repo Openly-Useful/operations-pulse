@@ -110,8 +110,8 @@ load. Removal requires `schedule uninstall --confirm-uninstall`.
 - `packages/core` — SQLite ledger and deterministic checks.
 - `packages/mcp` — MCP stdio server.
 - `skill/operations-pulse` — portable agent skill.
-- `plugins/openai/operations-pulse` — generated Codex skill wrapper.
-- `plugins/claude/operations-pulse` — generated Claude Code skill wrapper.
+- `plugins/openai/operations-pulse` — generated Codex skill and MCP wrapper.
+- `plugins/claude/operations-pulse` — generated Claude Code skill and MCP wrapper.
 - `.agents/plugins/marketplace.json` — repository-local Codex marketplace.
 - `.claude-plugin/marketplace.json` — repository-local Claude marketplace.
 - `mcp-registry/operations-pulse/server.json` — staged official MCP Registry metadata.
@@ -153,11 +153,14 @@ npm run registration:sync
 npm run registration:check
 ```
 
-The wrappers intentionally register only the portable skill. They do not
-install npm packages, register the MCP server, authenticate an account, or
-change user-level host settings. The separately staged MCP identity is
-`org.openlyuseful/operations-pulse`, backed by the future npm package
-`@openly-useful/operations-pulse-mcp`.
+The wrappers register the portable skill plus the immutable stdio command
+`npx --yes @openly-useful/operations-pulse-mcp@0.1.0`. They do not authenticate
+an account, install a scheduler, configure adapters, or collect credentials.
+The corresponding MCP Registry identity is `org.openlyuseful/operations-pulse`.
+After installing or upgrading the plugin, start a new Codex task or restart
+Claude Code so the host refreshes its MCP tools. By default the MCP database is
+`.operations-pulse/pulse.sqlite` under the host process working directory;
+set `OPERATIONS_PULSE_DB` in the host environment to choose an explicit path.
 
 Local generation and validation are allowed. Public repository creation,
 package publication, MCP Registry submission, marketplace submission,
