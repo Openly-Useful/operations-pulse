@@ -129,6 +129,13 @@ if (publisher.legal?.plannedName !== "Openly Useful LLC"
   || publisher.legal?.activeName !== null) {
   fail("Planned legal entity must remain explicitly formation-pending with no active legal name.");
 }
+if (!same(publisher.legal?.currentOperator, {
+  type: "founder-individual",
+  displayName: "Founder of Openly Useful",
+  operatingAs: "Openly Useful",
+})) {
+  fail("Current operator must be the founder-individual operating as Openly Useful.");
+}
 if (publisher.domains?.studio !== "https://openlyuseful.com"
   || publisher.domains?.openSource !== expectedPublisher.url
   || publisher.domains?.publicAuthority !== "openlyuseful.org") {
@@ -143,23 +150,37 @@ if (publisher.organization?.github !== "https://github.com/Openly-Useful"
 if (publisher.contacts?.public !== expectedPublisher.email || !same(publisher.policies, expectedPolicies)) {
   fail("Publisher contact or canonical policy URLs are invalid.");
 }
-const expectedPendingBlockers = [
-  "formation-active",
-  "publisher-authorization",
+if (!same(publisher.policyMirrors, {
+  privacy: "https://github.com/Openly-Useful/openlyuseful.org/blob/main/legal/privacy.html",
+  terms: "https://github.com/Openly-Useful/openlyuseful.org/blob/main/legal/terms.html",
+  security: "https://github.com/Openly-Useful/openlyuseful.org/blob/main/security.html",
+  support: "https://github.com/Openly-Useful/openlyuseful.org/blob/main/support.html",
+}) || publisher.authorityManifestMirror
+  !== "https://github.com/Openly-Useful/openlyuseful.org/blob/main/publisher/manifest.json") {
+  fail("Publisher policy or authority source mirrors are invalid.");
+}
+const expectedGenericRequirements = [
   "namespace-verification",
-  "public-policy-url-verification",
+  "provider-account-authentication",
+  "provider-review",
 ];
 if (publisher.publication?.localGenerationAllowed !== true
   || publisher.publication?.localTestingAllowed !== true
-  || publisher.publication?.externalPublicationAllowed !== false
-  || publisher.publication?.authorization !== "withheld"
-  || !same(publisher.publication?.blockingRequirements, expectedPendingBlockers)) {
-  fail("Formation-pending publisher publication controls are not fail-closed.");
+  || publisher.publication?.externalPublicationAllowed !== true
+  || publisher.publication?.authorization !== "granted"
+  || publisher.publication?.authorizationBasis !== "founder-owner-direct"
+  || publisher.publication?.effectiveWhileFormationPending !== true
+  || !same(publisher.publication?.blockingRequirements, expectedGenericRequirements)) {
+  fail("Founder-authorized publisher publication controls are not canonical.");
 }
 if (!publisher.artifactPolicy?.authorityEndpoint?.includes("published authority endpoint")
   || !publisher.artifactPolicy?.derivation?.includes("must derive")
+  || !publisher.artifactPolicy?.activation?.includes("founder-operated")
   || !publisher.artifactPolicy?.activation?.includes("must not be represented as formed")) {
   fail("Publisher artifact policy is incomplete.");
+}
+if (publisher.lastUpdated !== "2026-08-23") {
+  fail("Publisher mirror projection date is not current.");
 }
 
 if (rootPackage.version !== corePackage.version || rootPackage.version !== mcpPackage.version) {
@@ -182,8 +203,9 @@ if (registry.$schema !== "https://static.modelcontextprotocol.io/schemas/2025-12
   fail("MCP Registry schema or planned repository metadata is invalid.");
 }
 for (const [label, packageManifest] of [["core", corePackage], ["MCP", mcpPackage]]) {
+  const expectedPrepublish = `node ../../scripts/assert-publish-ready.mjs --package ${label === "core" ? "core" : "mcp"}`;
   if (packageManifest.private !== false
-    || packageManifest.scripts?.prepublishOnly !== "node ../../scripts/assert-publish-ready.mjs"
+    || packageManifest.scripts?.prepublishOnly !== expectedPrepublish
     || packageManifest.publishConfig?.access !== "public"
     || packageManifest.homepage !== expectedPublisher.url
     || packageManifest.bugs !== expectedPolicies.support) {

@@ -135,13 +135,15 @@ flow, and no remote write adapter is enabled by default.
 Openly Useful is the publisher and developer brand. `openlyuseful.org` is the
 open-source, publisher, policy, security, and support surface;
 `openlyuseful.com` is the Studio/commercial surface. Openly Useful LLC is the
-planned legal entity and is not represented as formed or active.
+planned legal entity and is not represented as formed or active. Openly Useful
+is currently operated by its founder as an individual, and the founder-owner
+has authorized external source and registry publication while formation proceeds.
 
 The repository mirror at `publisher/publisher.json` consumes the published
 authority endpoint at <https://openlyuseful.org/publisher/manifest.json>.
 Provider manifests derive the public name, contact, namespaces, and policy URLs
 from that record. The repository URL in staged provider metadata is the planned
-public target; this local repository currently has no configured Git remote.
+public source at <https://github.com/Openly-Useful/operations-pulse>.
 
 The canonical skill remains `skill/operations-pulse`. Provider wrapper copies
 are generated artifacts, not separately editable sources:
@@ -160,6 +162,10 @@ change user-level host settings. The separately staged MCP identity is
 Local generation and validation are allowed. Public repository creation,
 package publication, MCP Registry submission, marketplace submission,
 installation, authentication, and deployment are separate external actions.
-While formation is pending, both publishable workspaces fail closed at
-`prepublishOnly`; activation also requires publisher authorization, verified
-namespaces, live policy/support URLs, and no remaining publisher blockers.
+Both publishable workspaces fail closed at `prepublishOnly` unless the exact
+founder-owner authorization, publisher identity, policy sources, namespace,
+package identity, and repository provenance match the public authority. LLC
+formation-pending is not itself an npm artifact blocker because Openly Useful
+is founder-operated and the authorization is explicitly effective during
+formation. Namespace verification, provider authentication, and provider review
+remain separate requirements for the relevant registry or provider workflow.

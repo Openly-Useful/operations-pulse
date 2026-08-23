@@ -20,7 +20,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepack": "npm run build",
-    "prepublishOnly": "node ../../scripts/assert-publish-ready.mjs"
+    "prepublishOnly": "node ../../scripts/assert-publish-ready.mjs --package mcp"
   },
   "repository": {
     "type": "git",

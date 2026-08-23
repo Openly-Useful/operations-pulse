@@ -13,7 +13,7 @@ function json(path) {
   return JSON.parse(readFileSync(join(root, path), "utf8"));
 }
 
-test("publisher mirror keeps the one-entity activation boundary formation-pending", () => {
+test("publisher mirror keeps the one-entity boundary founder-operated and formation-pending", () => {
   const publisher = json("publisher/publisher.json");
   assert.equal(publisher.displayName, "Openly Useful");
   assert.equal(publisher.authorityManifest, "https://openlyuseful.org/publisher/manifest.json");
@@ -21,13 +21,19 @@ test("publisher mirror keeps the one-entity activation boundary formation-pendin
   assert.equal(publisher.legal.plannedName, "Openly Useful LLC");
   assert.equal(publisher.legal.activeName, null);
   assert.equal(publisher.legal.status, "formation-pending");
-  assert.equal(publisher.publication.externalPublicationAllowed, false);
-  assert.equal(publisher.publication.authorization, "withheld");
+  assert.deepEqual(publisher.legal.currentOperator, {
+    type: "founder-individual",
+    displayName: "Founder of Openly Useful",
+    operatingAs: "Openly Useful",
+  });
+  assert.equal(publisher.publication.externalPublicationAllowed, true);
+  assert.equal(publisher.publication.authorization, "granted");
+  assert.equal(publisher.publication.authorizationBasis, "founder-owner-direct");
+  assert.equal(publisher.publication.effectiveWhileFormationPending, true);
   assert.deepEqual(publisher.publication.blockingRequirements, [
-    "formation-active",
-    "publisher-authorization",
     "namespace-verification",
-    "public-policy-url-verification",
+    "provider-account-authentication",
+    "provider-review",
   ]);
 });
 
@@ -90,35 +96,48 @@ test("official MCP Registry and npm identities agree", () => {
   assert.equal(registry.packages[0].transport.type, "stdio");
 });
 
-test("external package publication fails closed until activation and blocker clearance", () => {
-  const pending = json("publisher/publisher.json");
-  assert.notDeepEqual(publicationErrors(pending), []);
+test("npm artifact gate accepts founder authorization while provider review remains tracked", () => {
+  const publisher = json("publisher/publisher.json");
+  assert.deepEqual(publicationErrors(publisher), []);
+  assert.ok(publisher.publication.blockingRequirements.includes("provider-review"));
+  assert.equal(
+    json("packages/core/package.json").scripts.prepublishOnly,
+    "node ../../scripts/assert-publish-ready.mjs --package core",
+  );
+  assert.equal(
+    json("packages/mcp/package.json").scripts.prepublishOnly,
+    "node ../../scripts/assert-publish-ready.mjs --package mcp",
+  );
 
-  for (const packagePath of ["packages/core/package.json", "packages/mcp/package.json"]) {
-    assert.equal(
-      json(packagePath).scripts.prepublishOnly,
-      "node ../../scripts/assert-publish-ready.mjs",
-    );
+  const ready = spawnSync(
+    process.execPath,
+    [join(root, "scripts/assert-publish-ready.mjs"), "--package", "mcp"],
+    {
+      cwd: root,
+      encoding: "utf8",
+    },
+  );
+  assert.equal(ready.status, 0, ready.stderr || ready.stdout);
+  assert.match(ready.stdout, /PUBLICATION READY/);
+});
+
+test("npm artifact gate fails closed on publisher identity, policy, source, or authorization drift", () => {
+  const publisher = json("publisher/publisher.json");
+  const cases = [
+    [["legal", "currentOperator", "type"], "llc", /current operator/],
+    [["publication", "authorization"], "withheld", /not granted/],
+    [["publication", "authorizationBasis"], "future-assignment", /founder-owner-direct/],
+    [["publication", "effectiveWhileFormationPending"], false, /effective while formation/],
+    [["organization", "github"], "https://github.com/not-openly-useful", /source organization/],
+    [["policies", "privacy"], "https://example.invalid/privacy", /policy sources/],
+  ];
+  for (const [path, value, expected] of cases) {
+    const changed = structuredClone(publisher);
+    let target = changed;
+    for (const key of path.slice(0, -1)) target = target[key];
+    target[path.at(-1)] = value;
+    assert.match(publicationErrors(changed).join("\n"), expected);
   }
-
-  const blocked = spawnSync(process.execPath, [join(root, "scripts/assert-publish-ready.mjs")], {
-    cwd: root,
-    encoding: "utf8",
-  });
-  assert.equal(blocked.status, 1);
-  assert.match(blocked.stderr, /PUBLICATION BLOCKED/);
-  assert.match(blocked.stderr, /formation-pending/);
-
-  const active = structuredClone(pending);
-  active.legal.status = "active";
-  active.legal.activeName = active.legal.plannedName;
-  active.publication.externalPublicationAllowed = true;
-  active.publication.authorization = "authorized";
-  active.publication.blockingRequirements = [];
-  assert.deepEqual(publicationErrors(active), []);
-
-  active.publication.blockingRequirements = ["namespace-verification"];
-  assert.match(publicationErrors(active).join("\n"), /publisher blockers remain/);
 });
 
 test("registration check is read-only and clean", () => {
