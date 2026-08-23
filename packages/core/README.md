@@ -9,5 +9,9 @@ variable at runtime and are never written to the SQLite ledger. The macOS
 heartbeat scheduler is opt-in and requires a reviewed plan plus an explicit CLI
 confirmation.
 
-Public publication is blocked while the Openly Useful publisher record remains
-`formation-pending`. Repository metadata is staged for local validation only.
+Openly Useful is founder-operated while Openly Useful LLC remains
+`formation-pending`. The founder-owner has authorized external publication
+during formation. `prepublishOnly` fails closed unless that authorization and
+the exact publisher identity, policy sources, npm identity, version, and
+repository provenance match. Provider authentication and review remain separate
+provider workflow steps and do not block npm artifact readiness.

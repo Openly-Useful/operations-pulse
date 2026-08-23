@@ -13,5 +13,9 @@ selected, preconfigured read-only adapters in a pulse, and exposes only safe
 connection and scheduler status through MCP. Configuration, credential setup,
 scheduler installation, and scheduler removal remain explicit local CLI actions.
 
-Public publication is blocked while the Openly Useful publisher record remains
-`formation-pending`. Repository metadata is staged for local validation only.
+Openly Useful is founder-operated while Openly Useful LLC remains
+`formation-pending`. The founder-owner has authorized external publication
+during formation. `prepublishOnly` fails closed unless that authorization and
+the exact publisher identity, policy sources, npm/MCP identities, version, and
+repository provenance match. Provider authentication and review remain separate
+MCP Registry steps and do not block npm artifact readiness.
