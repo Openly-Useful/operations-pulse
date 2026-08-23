@@ -8,6 +8,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -19,6 +20,17 @@ const wrapperSkillRoots = ["openai", "claude"].map((host) =>
 );
 const canonicalCatalogRoot = join(registrationRoot, "catalog");
 const packagedCatalogRoot = join(registrationRoot, "packages", "mcp", "catalog");
+const pluginMcpConfigPaths = ["openai", "claude"].map((host) =>
+  join(registrationRoot, "plugins", host, "operations-pulse", ".mcp.json"),
+);
+const pluginMcpConfig = Buffer.from(`${JSON.stringify({
+  mcpServers: {
+    "operations-pulse": {
+      args: ["--yes", "@openly-useful/operations-pulse-mcp@0.1.0"],
+      command: "npx",
+    },
+  },
+}, null, 2)}\n`);
 
 function walkFiles(directory) {
   const files = [];
@@ -63,6 +75,12 @@ export function registrationSyncErrors() {
       if (!expected.has(path)) errors.push(`Unexpected generated artifact file: ${relative(registrationRoot, join(target, path))}`);
     }
   }
+  for (const path of pluginMcpConfigPaths) {
+    if (!existsSync(path)) errors.push(`Generated artifact is missing ${relative(registrationRoot, path)}`);
+    else if (!readFileSync(path).equals(pluginMcpConfig)) {
+      errors.push(`Generated artifact drift: ${relative(registrationRoot, path)}`);
+    }
+  }
   return errors;
 }
 
@@ -84,6 +102,10 @@ export function writeRegistrationSkillCopies() {
       copyFileSync(sourcePath, destination);
       count += 1;
     }
+  }
+  for (const path of pluginMcpConfigPaths) {
+    writeFileSync(path, pluginMcpConfig);
+    count += 1;
   }
   return count;
 }

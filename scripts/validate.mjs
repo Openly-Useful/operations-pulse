@@ -32,6 +32,8 @@ const codexMarketplace = json(".agents/plugins/marketplace.json");
 const claudeMarketplace = json(".claude-plugin/marketplace.json");
 const codexPlugin = json("plugins/openai/operations-pulse/.codex-plugin/plugin.json");
 const claudePlugin = json("plugins/claude/operations-pulse/.claude-plugin/plugin.json");
+const codexMcp = json("plugins/openai/operations-pulse/.mcp.json");
+const claudeMcp = json("plugins/claude/operations-pulse/.mcp.json");
 
 const expectedPublisher = {
   name: "Openly Useful",
@@ -47,6 +49,14 @@ const expectedPolicies = {
 const expectedRepository = "https://github.com/Openly-Useful/operations-pulse";
 const expectedMcpName = "org.openlyuseful/operations-pulse";
 const expectedMcpPackage = "@openly-useful/operations-pulse-mcp";
+const expectedPluginMcp = {
+  mcpServers: {
+    "operations-pulse": {
+      args: ["--yes", "@openly-useful/operations-pulse-mcp@0.1.0"],
+      command: "npx",
+    },
+  },
+};
 
 function same(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
@@ -183,8 +193,8 @@ if (publisher.lastUpdated !== "2026-08-23") {
   fail("Publisher mirror projection date is not current.");
 }
 
-if (rootPackage.version !== corePackage.version || rootPackage.version !== mcpPackage.version) {
-  fail("Root, core, and MCP package versions must agree.");
+if (rootPackage.version !== "0.1.1" || corePackage.version !== "0.1.0" || mcpPackage.version !== "0.1.0") {
+  fail("Plugin release must be 0.1.1 while immutable npm artifacts remain 0.1.0.");
 }
 if (mcpPackage.name !== expectedMcpPackage || mcpPackage.mcpName !== expectedMcpName) {
   fail("MCP npm package name or official MCP Registry identity is invalid.");
@@ -240,6 +250,7 @@ if (claudeMarketplace.$schema !== "https://json.schemastore.org/claude-code-mark
   || claudeMarketplace.version !== rootPackage.version
   || claudeMarketplace.plugins?.length !== 1
   || claudeMarketplace.plugins[0]?.source !== "./plugins/claude/operations-pulse"
+  || claudeMarketplace.plugins[0]?.version !== rootPackage.version
   || claudeMarketplace.plugins[0]?.strict !== true) {
   fail("Claude marketplace metadata is invalid.");
 }
@@ -253,20 +264,22 @@ for (const [label, manifest] of [["Codex", codexPlugin], ["Claude", claudePlugin
     || manifest.homepage !== expectedPublisher.url
     || manifest.repository !== expectedRepository
     || manifest.skills !== "./skills/"
-    || "mcpServers" in manifest) {
-    fail(`${label} plugin manifest identity or skill-only boundary is invalid.`);
+    || manifest.mcpServers !== "./.mcp.json") {
+    fail(`${label} plugin manifest identity or MCP registration boundary is invalid.`);
   }
   validateAuthor(manifest.author, `${label} plugin author`);
 }
 if (codexPlugin.interface?.developerName !== expectedPublisher.name
   || codexPlugin.interface?.privacyPolicyURL !== expectedPolicies.privacy
   || codexPlugin.interface?.termsOfServiceURL !== expectedPolicies.terms
-  || codexPlugin.interface?.supportURL !== expectedPolicies.support
   || codexPlugin.interface?.websiteURL !== expectedPublisher.url) {
   fail("Codex public interface URLs must derive from the publisher record.");
 }
 if (claudePlugin.$schema !== "https://json.schemastore.org/claude-code-plugin-manifest.json") {
   fail("Claude plugin manifest schema is invalid.");
+}
+if (!same(codexMcp, expectedPluginMcp) || !same(claudeMcp, expectedPluginMcp)) {
+  fail("Codex and Claude plugins must pin the immutable Operations Pulse MCP stdio package.");
 }
 
 for (const error of registrationSyncErrors()) fail(error);
@@ -281,6 +294,8 @@ for (const required of [
   "publisher/publisher.json",
   ".agents/plugins/marketplace.json",
   ".claude-plugin/marketplace.json",
+  "plugins/openai/operations-pulse/.mcp.json",
+  "plugins/claude/operations-pulse/.mcp.json",
   "mcp-registry/operations-pulse/server.json",
   "packages/mcp/README.md",
   "packages/mcp/LICENSE",

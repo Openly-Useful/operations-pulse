@@ -22,13 +22,13 @@
     "longDescription": "Run local repository, documentation, and log checks; correlate signals with durable ticket memory; and explain governed connection options without treating agent output as authority.",
     "privacyPolicyURL": "https://openlyuseful.org/legal/privacy",
     "shortDescription": "Governed operational heartbeats and ticket memory",
-    "supportURL": "https://openlyuseful.org/support",
     "termsOfServiceURL": "https://openlyuseful.org/legal/terms",
     "websiteURL": "https://openlyuseful.org"
   },
   "license": "MIT",
+  "mcpServers": "./.mcp.json",
   "name": "operations-pulse",
   "repository": "https://github.com/Openly-Useful/operations-pulse",
   "skills": "./skills/",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
