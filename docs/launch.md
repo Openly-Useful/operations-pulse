@@ -23,24 +23,27 @@
 
 ## External activation boundary
 
-Repository-local generation, build, packaging, and tests are allowed while the
-publisher is formation-pending. Do not publish either npm workspace, submit the
-MCP Registry entry, add a hosted marketplace, install a plugin, authenticate a
-provider account, create or push a remote, or deploy from this checklist.
+Openly Useful is founder-operated while the single planned LLC remains
+formation-pending. Formation is not a publication gate: the founder-owner has
+directly authorized source, package, registry, and provider publication. Each
+external action still requires its own identity, account, namespace, policy,
+and release validation before it is executed.
 
 External activation requires all of the following to be recorded first:
 
-- Openly Useful LLC is formed and its active name is verified;
-- publisher authorization is explicitly `authorized`;
+- the current operator remains truthfully identified as the founder-individual;
+- publisher authorization is explicitly `granted` with the
+  `founder-owner-direct` basis;
 - `externalPublicationAllowed` is `true`;
 - namespace and required provider verification are complete;
 - privacy, terms, security, support, and publisher URLs are publicly reachable;
-- the planned public repository exists and has passed the sanitized-tree review;
-- `blockingRequirements` is empty; and
+- the public repository exists and has passed the sanitized-tree review;
+- remaining provider-specific requirements are satisfied for the action; and
 - the specific external publication or submission is separately authorized.
 
-The staged provider and registry files do not claim that any external action has
-occurred.
+The public Codex and Claude marketplace manifests are live. npm package and MCP
+Registry state must still be verified independently before either is described
+as published.
 
 ## Post-launch connector gate
 
